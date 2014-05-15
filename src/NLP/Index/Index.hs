@@ -1,4 +1,5 @@
 module NLP.Index.Index where
+
 import qualified Data.Map.Strict as M
 
 countOccurrence :: (Ord a) => [a] -> M.Map a Int

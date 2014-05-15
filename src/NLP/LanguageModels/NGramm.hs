@@ -1,6 +1,7 @@
 module NLP.LanguageModels.NGramm where
-import NLP.Index.Index
-import qualified Data.Map as M
+
+import qualified Data.Map        as M
+import           NLP.Index.Index
 
 getNgramms :: Ord a => Int -> [a] -> M.Map [a] Int
 getNgramms n = countOccurrence . tokenizeNgramms n
@@ -10,7 +11,7 @@ tokenizeNgramms _ [] = []
 tokenizeNgramms n xs@(_:rest) = take n xs : tokenizeNgramms n rest
 
 trainingNgramms :: Ord a => Int -> [a] -> M.Map [a] Float
-trainingNgramms n wrds = 
+trainingNgramms n wrds =
     let ngrammIndex = getNgramms n wrds
         wordIndex = countOccurrence wrds in
     M.mapWithKey (getProb wordIndex) ngrammIndex

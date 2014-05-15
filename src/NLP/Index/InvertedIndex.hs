@@ -1,4 +1,5 @@
 module NLP.Index.InvertedIndex where
+
 import qualified Data.Map.Strict as Map
 
 type Index          a  = Map.Map a Int

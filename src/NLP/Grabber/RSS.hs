@@ -1,5 +1,5 @@
 {-# LANGUAGE Arrows #-}
-module NLP.Grabber.RSS where
+module NLP.Grabber.RSS (getRSS) where
 
 import           Control.Applicative
 import           Control.Category
@@ -8,15 +8,22 @@ import           NLP.Grabber.Article
 import           NLP.Grabber.Download
 import           Prelude              hiding (id, (.))
 import           Text.XML.HXT.Core
+import Control.Concurrent.Async (mapConcurrently)
 
-getFeeds :: ArrowXml a => a XmlTree String
-getFeeds = proc x -> do
-    link <- getChildren >>> hasName "link" /> getText -< x
+getLinks :: ArrowXml a => a XmlTree String
+getLinks = proc x -> do
+    item <- deep (hasName "item") -< x
+    link <- getChildren >>> hasName "link" /> getText -< item
     returnA -< link
 
+getUrls :: String -> IO [String]
+getUrls url = do
+    doc <- get False url
+    urls <- (runX $ doc >>> getLinks)
+    return urls
 
-readRSS :: String -> (String -> IO (Maybe Article)) -> IO [Article]
-readRSS url parser = do
-    doc <- get True url
-    urls <- (runX $ doc >>> getFeeds)
-    catMaybes <$> mapM parser urls
+
+getRSS :: String -> (String -> IO (Maybe Article)) -> IO [Article]
+getRSS url parser = do
+    urls <- getUrls url
+    catMaybes <$> mapConcurrently parser urls

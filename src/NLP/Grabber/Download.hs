@@ -6,6 +6,7 @@ import           Data.Tree.NTree.TypeDefs
 import           Network.HTTP
 import           Network.URI
 import           Text.XML.HXT.Core
+import Text.XML.HXT.HTTP
 
 openUrl :: String -> MaybeT IO String
 openUrl url = case parseURI url of
@@ -19,14 +20,15 @@ getXML url = do
     withEncodingErrors yes] (fromMaybe "" contents)
 
 get :: Bool -> String -> IO (IOSArrow XmlTree (NTree XNode))
-get asHTML url = do
-    contents <- runMaybeT $ openUrl url
-    return $ readString config $ fromMaybe "" contents
+get asHTML url = return $ readDocument config url
     where
         config= if asHTML
             then (withParseHTML yes) : baseConfig
             else baseConfig
-        baseConfig = [withWarnings no,
-            withEncodingErrors no]
+        baseConfig = [
+            withWarnings no
+            , withHTTP []
+            , withRedirect True
+            , withEncodingErrors no]
 
 

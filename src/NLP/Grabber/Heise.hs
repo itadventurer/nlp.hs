@@ -1,25 +1,17 @@
 {-# LANGUAGE Arrows            #-}
 {-# LANGUAGE OverloadedStrings #-}
-module NLP.Grabber.Heise where
+module NLP.Grabber.Heise (getArticle) where
 
-import           Control.Applicative
 import           Data.List
-import           Data.Monoid
 import qualified Data.Text            as T
 import           Data.Time.Format
 import           NLP.Grabber.Article
-import           NLP.Grabber.Download
 import           System.Locale
 import           Text.XML.HXT.Core    hiding (when)
 
 
 getArticle :: String -> IO (Maybe Article)
-getArticle url= do
-    doc <- get True url
-    concatArticle <$> (runX $ doc >>> getArticleEntry)
-    where
-        concatArticle xs@(art:_) = Just $ art {articleText= mconcat $ map (T.strip . articleText) xs}
-        concatArticle [] = Nothing
+getArticle = mergeArticle getArticleEntry
 
 getArticleEntry :: ArrowXml a => a XmlTree Article
 getArticleEntry = proc x -> do

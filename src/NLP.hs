@@ -9,3 +9,5 @@ import           NLP.Index.InvertedIndex
 import           NLP.LanguageModels.NGramm
 import           NLP.Tokenizer
 import NLP.Grabber.Article
+import NLP.Database.Article
+import NLP.Grabber

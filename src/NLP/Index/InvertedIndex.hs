@@ -18,10 +18,10 @@ printInvertedIndex :: (Ord a, Show a, Ord b, Show b) => InvertedIndex a b -> Str
 printInvertedIndex invin = unlines $ toString $ Map.toList $ Map.map printRow invin
     where
         toString :: (Show a, Show b) => [(a,b)] -> [String]
-        toString ((token,str):xs) =  (show token ++ ": " ++ show str) : (toString xs )
+        toString ((token,str):xs) =  (show token ++ ": " ++ show str) : toString xs
         toString [] = []
         printRow :: (Show a, Show b) => Map.Map a b -> String
         printRow mmap = unwords $ toStr $ Map.toList mmap
             where
-                toStr ((fname,count):xs) = (show fname ++ (' ' : show count)) : (toStr xs)
+                toStr ((fname,count):xs) = (show fname ++ (' ' : show count)) : toStr xs
                 toStr [] = []

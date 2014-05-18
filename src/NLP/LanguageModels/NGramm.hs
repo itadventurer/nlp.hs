@@ -16,6 +16,12 @@ trainingNgramms n wrds =
         wordIndex = countOccurrence wrds in
     M.mapWithKey (getProb wordIndex) ngrammIndex
     where
+        -- | P(w_n | P(w_0,…,w_{n-1})
         getProb :: Ord a => M.Map a Int -> [a] -> Int -> Float
-        getProb ws (w:_) occ = (fromIntegral occ) / (fromIntegral (ws M.! w))
         getProb _ [] _ = 0
+        getProb ix ws occ = fromIntegral occ / (getProbPriori ix ws)
+
+
+        -- | Let ngramm=(w_0,w_1,…w_n). getProbPriori calculates P(w_0,…,w_{n-1})
+        getProbPriori :: Ord a => M.Map a Int -> [a] -> Float
+        getProbPriori ix ws = product $ map (\w -> fromIntegral (ix M.! w)) $ init ws

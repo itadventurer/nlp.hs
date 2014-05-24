@@ -28,5 +28,3 @@ download asHTML url = let surl=T.unpack url in
             , withHTTP []
             , withRedirect True
             , withEncodingErrors no]
-
-

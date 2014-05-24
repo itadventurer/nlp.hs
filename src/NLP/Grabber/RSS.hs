@@ -3,16 +3,18 @@ module NLP.Grabber.RSS where
 
 import           Control.Applicative
 import           Control.Category
-import Control.Monad.IO.Class (liftIO)
 import           Data.Maybe
 import           NLP.Grabber.Download
 import           Prelude              hiding (id, (.))
 import           Text.XML.HXT.Core
 import Control.Concurrent.Async (mapConcurrently)
 import NLP.Database.Article
-import qualified Database.Persist as DB
+import NLP.Types
+import Database.Persist as DB
 import qualified Data.Text as T
 import Data.Text (Text)
+import Control.Monad.Reader
+
 
 -- | Returns all Articles of a RSS feed
 getRSS :: Text -- ^ URL of the RSS Feed
@@ -22,16 +24,26 @@ getRSS url parser = do
     urls <- getUrls url
     catMaybes <$> mapConcurrently parser urls
 
--- | Returns all new Articles of a RSS feed
-getNewRSS :: DB.PersistQuery m => Text -- ^ URL of the feed
+-- | Insert all new articles in the DB and returns them
+handleNewRSS :: Text -- ^ URL of the feed
              -> (Text -> IO (Maybe Article)) -- ^ Parser
-             -> m [Article]
-getNewRSS url parser = do
+             -> NLP [Article]
+handleNewRSS url parser = do
   urls' <- liftIO $ getUrls url
-  maybeUrls <- mapM isInDB urls'
-  let urls=catMaybes maybeUrls
-  articles <- liftIO $ mapConcurrently parser urls
-  return $ catMaybes articles
+  catMaybes <$> mapM (handleArticle parser) urls'
+
+handleArticle :: (Text -> IO (Maybe Article)) -> Text -> NLP (Maybe Article)
+handleArticle parser url = do
+  cnt <- runDB $ DB.count [ArticleUrl DB.==. url]
+  case cnt of
+    0 -> do
+      article <- liftIO $ parser url
+      case article of
+        Just a -> void $ runDB $ DB.insert a
+        Nothing -> return ()
+      return article
+    _ -> return Nothing
+
 
 -- Private stuff
   
@@ -45,11 +57,3 @@ getUrls :: Text -> IO [Text]
 getUrls url = do
     doc <- download False url
     runX $ doc >>> getLinks
-
-
-isInDB :: DB.PersistQuery m => Text -> m (Maybe Text)
-isInDB url = do
-  cnt <- DB.count [ArticleUrl DB.==. url]
-  case cnt of
-    0 -> return $ Just url
-    _ -> return Nothing

@@ -19,7 +19,7 @@ trainingNgramms n wrds =
         -- | P(w_n | P(w_0,…,w_{n-1})
         getProb :: Ord a => M.Map a Int -> [a] -> Int -> Float
         getProb _ [] _ = 0
-        getProb ix ws occ = fromIntegral occ / (getProbPriori ix ws)
+        getProb ix ws occ = fromIntegral occ / getProbPriori ix ws
 
 
         -- | Let ngramm=(w_0,w_1,…w_n). getProbPriori calculates P(w_0,…,w_{n-1})

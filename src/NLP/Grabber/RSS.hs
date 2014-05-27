@@ -14,6 +14,7 @@ import Database.Persist as DB
 import qualified Data.Text as T
 import Data.Text (Text)
 import Control.Monad.Reader
+import NLP.Database.Helpers
 
 
 -- | Returns all Articles of a RSS feed

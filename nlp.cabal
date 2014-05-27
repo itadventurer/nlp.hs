@@ -49,7 +49,7 @@ cabal-version:       >=1.10
 executable nlp
   
   main-is:             NLP.hs
-  ghc-options:         -Wall
+  ghc-options:         -Wall -O
   -- Modules included in this library but not exported.
   -- other-modules:       
   

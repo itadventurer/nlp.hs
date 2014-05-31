@@ -8,13 +8,11 @@ import           NLP.Grabber.Download
 import           Prelude              hiding (id, (.))
 import           Text.XML.HXT.Core
 import Control.Concurrent.Async (mapConcurrently)
-import NLP.Database.Article
 import NLP.Types
-import Database.Persist as DB
+import NLP.Types.Monad
 import qualified Data.Text as T
 import Data.Text (Text)
 import Control.Monad.Reader
-import NLP.Database.Helpers
 
 
 -- | Returns all Articles of a RSS feed
@@ -35,15 +33,14 @@ handleNewRSS url parser = do
 
 handleArticle :: (Text -> IO (Maybe Article)) -> Text -> NLP (Maybe Article)
 handleArticle parser url = do
-  cnt <- runDB $ DB.count [ArticleUrl DB.==. url]
-  case cnt of
-    0 -> do
+  exist <- existURL url
+  if exist then return Nothing else
+    do
       article <- liftIO $ parser url
       case article of
-        Just a -> void $ runDB $ DB.insert a
+        Just a -> void $ insertUnique a
         Nothing -> return ()
       return article
-    _ -> return Nothing
 
 
 -- Private stuff

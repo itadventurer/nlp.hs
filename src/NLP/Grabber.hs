@@ -4,13 +4,13 @@ module NLP.Grabber where
 import Control.Applicative
 import Data.Text (Text)
 
-import NLP.Database.Article
 import NLP.Grabber.RSS
 import NLP.Grabber.FAZ
 import NLP.Grabber.Heise
 import NLP.Grabber.Spiegel
 import NLP.Grabber.Zeit
 import NLP.Types
+import NLP.Types.Monad
 
 feeds :: [(Text, Text -> IO (Maybe Article))]
 feeds=[

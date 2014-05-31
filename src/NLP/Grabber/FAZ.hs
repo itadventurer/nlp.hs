@@ -8,7 +8,7 @@ import           Data.Time.Format
 import           NLP.Grabber.Article
 import           System.Locale
 import           Text.XML.HXT.Core    hiding (when)
-import NLP.Database.Article
+import NLP.Types
 import Data.Text (Text)
 
 -- | parses an article from faz.net
@@ -24,6 +24,6 @@ getArticleEntry = proc x -> do
     author <- deep $ hasName "a" >>> hasAttrValue "href" ("/redaktion/" `isPrefixOf`) >>> getChildren >>> hasName "span" /> getText -< dateAuthor
     item <- deep $ hasName "div" >>> hasAttrValue "class" (== "FAZArtikelContent") -< x
     text <- deep $ hasName "p" >>> neg autorenmodulFilter //> getText -< item
-    returnA -< Article "" (T.strip $ T.pack title) (Just $ T.strip $ T.pack author) (parseTime defaultTimeLocale "%Y-%m-%dT%H:%M:%S%z" date) (T.pack text)
+    returnA -< Article "" (T.strip $ T.pack title) (Just $ fromAuthorName $ T.strip $ T.pack author) (parseTime defaultTimeLocale "%Y-%m-%dT%H:%M:%S%z" date) (T.pack text)
     where
         autorenmodulFilter = hasAttrValue "class" (== "AutorenModul")

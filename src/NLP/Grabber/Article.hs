@@ -5,7 +5,7 @@ import           Control.Applicative
 import           Data.Monoid
 import qualified Data.Text            as T
 import           NLP.Grabber.Download
-import NLP.Database.Article
+import NLP.Types
 {-
 type FilterT = Control.Arrow.IOStateListArrow.IOSLA
        (Text.XML.HXT.Arrow.XmlState.TypeDefs.XIOState ())

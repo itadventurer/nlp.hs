@@ -2,21 +2,14 @@
 module Main where
 
 import qualified Data.Text                 as T
-import           NLP.Grabber.Heise
-import           NLP.Grabber.FAZ
-import           NLP.Grabber.RSS
-import           NLP.Index.Index
-import           NLP.Index.InvertedIndex
-import           NLP.LanguageModels.NGramm
-import           NLP.Tokenizer
-import NLP.Grabber.Duden
-import NLP.Grabber.Article
-import NLP.Database.Article
 import NLP.Grabber
-import NLP.Types
+--import NLP.Article.Trigrammize
 import Database.Persist.MySQL
 import NLP.Database.Helpers
 import NLP.Grabber.Wordlist
+import NLP.Database.Article
+import NLP.Types.Monad
+import NLP.Types
 -- import System.IO
 
 dbCfg :: ConnectInfo

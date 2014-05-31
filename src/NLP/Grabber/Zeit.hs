@@ -7,9 +7,9 @@ import           Data.Time.Format
 import           NLP.Grabber.Article
 import           System.Locale
 import           Text.XML.HXT.Core    hiding (when)
-import NLP.Database.Article
 import Data.Text (Text)
 import NLP.Helpers
+import NLP.Types
 
 -- | parses an article from faz.net
 getArticle :: Text -> IO (Maybe Article)

@@ -3,7 +3,6 @@
 {-# LANGUAGE TemplateHaskell #-}
 module NLP.Grabber.Duden where
 
-import NLP.Database.Article
 import Data.Text (Text)
 import qualified Data.Text as T
 import Text.XML.HXT.Core hiding (when)
@@ -14,6 +13,7 @@ import NLP.Types
 import Control.Monad.Reader
 import Control.Monad.Logger
 import NLP.Grabber.Wordlist
+import NLP.Types.Monad
 
 
 getAndInsertWords :: NLP ()

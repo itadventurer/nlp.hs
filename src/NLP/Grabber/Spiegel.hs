@@ -8,9 +8,9 @@ import           Data.Time.Format
 import           NLP.Grabber.Article
 import           System.Locale
 import           Text.XML.HXT.Core    hiding (when)
-import NLP.Database.Article
 import Data.Text (Text)
 import NLP.Helpers
+import NLP.Types
 
 getArticle :: Text -> IO (Maybe Article)
 getArticle = mergeArticle getArticleEntry
@@ -24,5 +24,5 @@ getArticleEntry = proc x -> do
   date <- deep $ hasName "time" >>> hasAttrValue "class" (=="timeformat") >>> getAttrValue "datetime" -< x
   item <- deep $ hasName "div" >>> hasAttrValue "class" ("article-section" `isInfixOf`) -< x
   text <- deep $ hasName "p" /> getText -< item
-  returnA -< Article "" (T.strip $ T.pack $ title1 ++ " " ++ title2) (Just $ toText author) (parseTime defaultTimeLocale "%Y-%m-%d %H:%M:%S" date) (T.pack text)
+  returnA -< Article "" (T.strip $ T.pack $ title1 ++ " " ++ title2) (Just $ fromAuthorName $ toText author) (parseTime defaultTimeLocale "%Y-%m-%d %H:%M:%S" date) (T.pack text)
                                                          

@@ -2,6 +2,27 @@ module NLP.LanguageModels.NGramm where
 
 import qualified Data.Map        as M
 import           NLP.Index.Index
+import Data.Text (Text)
+import NLP.Database.Article
+import NLP.Types
+import Database.Persist
+import NLP.Database.Helpers
+import Data.Maybe
+
+getTrigramms :: Int -> [Text] -> NLP (M.Map Trigramm Int)
+getTrigramms n txt =
+  let ngrammMap = getNgramms n txt in
+  M.mapKeys lToTri ngrammMap
+  where
+    lToTri :: [Text] -> NLP Trigramm
+    lToTri list = do
+      [w1,w2,w3] <- mapM getId list
+      return $ Trigramm w1 w2 w3
+    getId :: Text -> NLP WordId
+    getId w = do
+              let w' = Word w
+              entitiy <- fromJust <$> runDB $ getByValue w'
+              return $ entityKey entitiy
 
 getNgramms :: Ord a => Int -> [a] -> M.Map [a] Int
 getNgramms n = countOccurrence . tokenizeNgramms n

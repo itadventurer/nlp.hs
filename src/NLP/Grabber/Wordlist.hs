@@ -1,12 +1,10 @@
 module NLP.Grabber.Wordlist where
 
 import System.IO
-import NLP.Database.Article
 import qualified Data.Text as T
 import NLP.Types
-import qualified Database.Persist as DB
+import NLP.Types.Monad
 import Control.Monad.Reader
-import NLP.Database.Helpers
 import Data.Maybe
 
 -- | Parses a handle of the form
@@ -25,8 +23,5 @@ parseHandle handle = do
 
 insertWord :: (Word,[Word]) -> NLP ()
 insertWord (word,synonyms) = do
-  w_key <- insertOrKey word
-  s_keys <- mapM insertOrKey synonyms
-  let w_synonyms = map (Synonym w_key) s_keys
-  runDB $ mapM_ DB.insertUnique w_synonyms
-  return ()
+  let syn = map (\s -> Synonym word s) synonyms
+  mapM_ insertUnique syn

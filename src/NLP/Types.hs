@@ -6,11 +6,14 @@ module NLP.Types where
 import Database.Persist.MySQL (Key,SqlBackend,Unique)
 import Data.Text (Text)
 import NLP.Database.Article
-import NLP.Database.Helpers
 import NLP.Types.Monad
 import qualified Database.Persist as DB
 import Data.Maybe
 import Data.Time.Clock
+
+data Entity a = Entity { entityKey :: Key (DBEntity a)
+                       , entityVal :: a
+                       }
 
 class (DB.PersistEntityBackend (DBEntity a) ~ SqlBackend, (DB.PersistEntity (DBEntity a))) => DBType a where
   type family DBEntity a
@@ -34,8 +37,16 @@ class (DB.PersistEntityBackend (DBEntity a) ~ SqlBackend, (DB.PersistEntity (DBE
   getBy :: Unique (DBEntity a) -> NLP (Maybe a)
   getBy unique = do
     v <- runDB $ DB.getBy unique
-    -- v :: Maybe (Entity val)
     maybe (return Nothing) (fmap Just . fromDBType . DB.entityVal) v
+
+  getAll :: NLP [a]
+  getAll = do
+    v <- runDB $ DB.selectList [] []
+    mapM entityToVal v
+    where
+      entityToVal e = do
+        let e' = DB.entityVal e
+        fromDBType e'
 
 -- Word
 newtype Word = Word Text
@@ -121,3 +132,32 @@ existURL :: Text -> NLP Bool
 existURL url = do
   cnt <- runDB $ DB.count [DBArticleUrl DB.==. url]
   return $ cnt > 0
+
+data ArticleTrigramm = ArticleTrigramm Article Trigramm Int
+
+instance DBType ArticleTrigramm where
+  type DBEntity ArticleTrigramm = DBArticleTrigramm
+
+  fromDBType (DBArticleTrigramm articleKey trigrammKey count) = do
+    article <- get articleKey
+    trigramm <- get trigrammKey
+    return $ ArticleTrigramm (fromJust article) (fromJust trigramm) count
+  toDBType (ArticleTrigramm article trigramm count) = do
+    articleId <- insertOrKey article
+    trigrammId <- insertOrKey trigramm
+    return $ DBArticleTrigramm articleId trigrammId count
+
+data ArticleWord = ArticleWord Article Word Int
+
+instance DBType ArticleWord where
+  type DBEntity ArticleWord = DBArticleWord
+
+  fromDBType (DBArticleWord articleKey wordKey count) = do
+    article <- get articleKey
+    word <- get wordKey
+    return $ ArticleWord (fromJust article) (fromJust word) count
+  toDBType (ArticleWord article word count) = do
+    articleId <- insertOrKey article
+    wordId <- insertOrKey word
+    return $ DBArticleWord articleId wordId count
+  

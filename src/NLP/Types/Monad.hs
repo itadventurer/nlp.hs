@@ -6,8 +6,7 @@ import Control.Concurrent
 import Data.Pool
 import Control.Monad.Logger
 import Control.Concurrent.Async (mapConcurrently)
-import Data.Text (Text)
-import NLP.Database.Article
+import Control.Monad.Trans.Resource
 
 -------------------
 ---- NLP Monad ----
@@ -37,3 +36,6 @@ forkNLP h = do
   env <- ask
   liftIO $ forkIO $ void $ runNLP h env
 
+runDB f = do
+  pool <- asks _dbPool
+  runStdoutLoggingT $ runResourceT $ runSqlPool f pool

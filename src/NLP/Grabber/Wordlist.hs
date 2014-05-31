@@ -23,5 +23,5 @@ parseHandle handle = do
 
 insertWord :: (Word,[Word]) -> NLP ()
 insertWord (word,synonyms) = do
-  let syn = map (\s -> Synonym word s) synonyms
+  let syn = map (Synonym word) synonyms
   mapM_ insertUnique syn

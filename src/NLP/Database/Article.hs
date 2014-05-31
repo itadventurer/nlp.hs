@@ -31,6 +31,7 @@ DBWord sql=word
 DBArticleWord sql=article_word
   article DBArticleId
   word    DBWordId
+  occurrence Int
   UniqueAW article word
   deriving Show
 DBTrigramm sql=trigramm

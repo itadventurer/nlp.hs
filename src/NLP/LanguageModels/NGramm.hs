@@ -6,30 +6,25 @@ import Data.Text (Text)
 import NLP.Database.Article
 import NLP.Types
 import Database.Persist
-import NLP.Database.Helpers
 import Data.Maybe
+import Control.Applicative
+import Debug.Trace
 
-getTrigramms :: Int -> [Text] -> NLP (M.Map Trigramm Int)
-getTrigramms n txt =
-  let ngrammMap = getNgramms n txt in
+getTrigramms :: [Text] -> M.Map Trigramm Int
+getTrigramms txt =
+  let ngrammMap = getNgramms 3 txt in
   M.mapKeys lToTri ngrammMap
   where
-    lToTri :: [Text] -> NLP Trigramm
-    lToTri list = do
-      [w1,w2,w3] <- mapM getId list
-      return $ Trigramm w1 w2 w3
-    getId :: Text -> NLP WordId
-    getId w = do
-              let w' = Word w
-              entitiy <- fromJust <$> runDB $ getByValue w'
-              return $ entityKey entitiy
+    lToTri :: [Text] -> Trigramm
+    lToTri l = let [w1,w2,w3] = map Word l in
+                                Trigramm w1 w2 w3
 
 getNgramms :: Ord a => Int -> [a] -> M.Map [a] Int
 getNgramms n = countOccurrence . tokenizeNgramms n
 
 tokenizeNgramms :: Int -> [a] -> [[a]]
 tokenizeNgramms _ [] = []
-tokenizeNgramms n xs@(_:rest) = take n xs : tokenizeNgramms n rest
+tokenizeNgramms n xs@(_:rest) = if length xs < n then [] else take n xs : tokenizeNgramms n rest
 
 trainingNgramms :: Ord a => Int -> [a] -> M.Map [a] Float
 trainingNgramms n wrds =

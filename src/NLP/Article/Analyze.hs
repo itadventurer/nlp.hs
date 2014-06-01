@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module NLP.Article.Trigrammize where
+module NLP.Article.Analyze where
 
 import qualified Data.Text as T
 import NLP.LanguageModels.NGramm

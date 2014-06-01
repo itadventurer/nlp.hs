@@ -13,6 +13,7 @@ import NLP.Types.Monad
 import qualified Data.Text as T
 import Data.Text (Text)
 import Control.Monad.Reader
+import qualified NLP.Article.Analyze as Analyze
 
 
 -- | Returns all Articles of a RSS feed
@@ -38,7 +39,10 @@ handleArticle parser url = do
     do
       article <- liftIO $ parser url
       case article of
-        Just a -> void $ insertUnique a
+        Just a -> do
+                  _ <- insertUnique a
+                  _ <- forkNLP $ Analyze.handleArticle a
+                  return ()
         Nothing -> return ()
       return article
 
